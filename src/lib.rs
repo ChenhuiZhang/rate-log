@@ -91,14 +91,19 @@
 
 use std::time::{Duration, Instant};
 
-/// Formats a duration into a human-readable string with whole numbers only.
-/// Automatically chooses the most appropriate unit (hours, minutes, seconds, or milliseconds).
+/// Formats a duration into a human-readable string with at least two parts when possible.
+/// Shows hours and minutes for >= 1 hour, minutes and seconds for >= 1 minute,
+/// and single units for seconds and milliseconds.
 fn format_duration(duration: Duration) -> String {
     let total_secs = duration.as_secs();
     if total_secs >= 3600 {
-        format!("{}h", total_secs / 3600)
+        let hours = total_secs / 3600;
+        let minutes = (total_secs % 3600) / 60;
+        format!("{}h{}m", hours, minutes)
     } else if total_secs >= 60 {
-        format!("{}m", total_secs / 60)
+        let minutes = total_secs / 60;
+        let seconds = total_secs % 60;
+        format!("{}m{}s", minutes, seconds)
     } else if total_secs >= 1 {
         format!("{}s", total_secs)
     } else {
@@ -410,5 +415,24 @@ mod tests {
             "Message: \"message2\" repeat for 2 times in the past 50ms"
         );
         rate_log.output.clear();
+    }
+
+    #[test]
+    fn test_format_duration() {
+        // Test milliseconds (< 1 second)
+        let duration_ms = Duration::from_millis(500);
+        assert_eq!(format_duration(duration_ms), "500ms");
+
+        // Test seconds only (>= 1 second, < 1 minute)
+        let duration_s = Duration::from_secs(45);
+        assert_eq!(format_duration(duration_s), "45s");
+
+        // Test minutes and seconds (>= 1 minute, < 1 hour)
+        let duration_min = Duration::from_secs(3 * 60 + 25); // 3 minutes 25 seconds
+        assert_eq!(format_duration(duration_min), "3m25s");
+
+        // Test hours and minutes (>= 1 hour)
+        let duration_hour = Duration::from_secs(2 * 3600 + 45 * 60); // 2 hours 45 minutes
+        assert_eq!(format_duration(duration_hour), "2h45m");
     }
 }
