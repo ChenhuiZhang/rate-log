@@ -313,7 +313,6 @@ impl RateLog {
                     self.current.count,
                     format_duration(self.current.duration)
                 );
-                println!("{output}");
 
                 self.current.reset();
 

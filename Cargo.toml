@@ -1,6 +1,6 @@
 [package]
 name = "rate-log"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "A Rust library for rate-limited logging that prevents spam by tracking message frequency and duration."
 license = "MIT"
